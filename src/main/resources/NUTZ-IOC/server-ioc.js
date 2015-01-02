@@ -6,6 +6,9 @@ var ioc = {
 			"bindPort": 1920,
 			"filters": [{
 				"refer": "nutzFilter"
+			}],
+			"servlets": [{
+				"refer": "staticServlet"
 			}]
 		}
 	},
@@ -15,8 +18,18 @@ var ioc = {
 			"name": "nutz",
 			"filter": {"type": "org.nutz.mvc.NutFilter"},
 			"initParameters": {
-				"urlPattern": "*.html"
+				"urlPattern": "*.html",
 				"modules": "nrt.jetty.web.MainModule"
+			}
+		}
+	},
+	"staticServlet": {
+		"type": "org.eclipse.jetty.servlet.ServletHolder",
+		"fields": {
+			"name": "staticServlet",
+			"servlet": {"type": "nrt.jetty.web.StaticServlet"},
+			"initParameters": {
+				"urlPattern": "/s/*"
 			}
 		}
 	}
