@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.http.MimeTypes;
 import org.nutz.lang.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ extends HttpServlet {
 	
 	private String resourceLocation = DEFAULT_RESOURCE_LOCATION;
 	private List<File> locations;
+	private MimeTypes mimeTypes = new MimeTypes();
 	
 	@Override
 	public void init() throws ServletException {
@@ -78,6 +80,7 @@ extends HttpServlet {
 			logger.debug("Resource {} not found.", path);
 			super.doGet(req, resp);
 		} else {
+			resp.setContentType(mimeTypes.getMimeByExtension(path));
 			writeToResp(ins, resp);
 		}
 	}
