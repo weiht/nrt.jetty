@@ -5,7 +5,7 @@ import org.nutz.mvc.annotation.Ok;
 
 public class HomeModule {
 	@At("/index")
-	@Ok("nsp:/index")
+	@Ok("vm:/index.html")
 	public String index() {
 		return "world";
 	}

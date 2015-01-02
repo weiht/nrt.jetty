@@ -18,7 +18,7 @@ var ioc = {
 			"name": "nutz",
 			"filter": {"type": "org.nutz.mvc.NutFilter"},
 			"initParameters": {
-				"urlPattern": "*.gsp"
+				"urlPattern": "*.nsp"
 				"modules": "nrt.jetty.web.MainModule"
 			}
 		}

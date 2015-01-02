@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>test nutz</title>
+</head>
+<body>
+<p>
+This is a test page.
+</p>
+<p>Hello, <strong>${obj}</strong>!</p>
+<hr/>
+<h3>Context objects:</h3>
+#foreach ($k in $ioc.names)
+<p>
+$k = ${ioc.get(null, $k)}
+</p>
+#end
+<h1>Congratulations!</h1>
+</body>
+</html>

@@ -8,7 +8,7 @@ import org.nutz.mvc.annotation.Views;
 @IocBy(type=NrtJsonIocProvider.class, args={
 	"NUTZ-MVC"
 })
-@Views({ClasspathJspViewMaker.class})
+@Views({ClasspathJspViewMaker.class, VelocityViewMaker.class})
 public class MainModule {
 
 }
