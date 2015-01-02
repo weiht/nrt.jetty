@@ -6,9 +6,6 @@ var ioc = {
 			"bindPort": 1920,
 			"filters": [{
 				"refer": "nutzFilter"
-//			}],
-//			"servlets": [{
-//				"refer": "jspServlet"
 			}]
 		}
 	},
@@ -18,20 +15,8 @@ var ioc = {
 			"name": "nutz",
 			"filter": {"type": "org.nutz.mvc.NutFilter"},
 			"initParameters": {
-				"urlPattern": "*.nsp"
+				"urlPattern": "*.html"
 				"modules": "nrt.jetty.web.MainModule"
-			}
-		}
-	},
-	"jspServlet": {
-		"type": "org.eclipse.jetty.servlet.ServletHolder",
-		"fields": {
-			"name": "jsp",
-			"servlet": {"type": "org.apache.jasper.servlet.JspServlet"},
-			"initParameters": {
-				"development": "true", /*True to check modification on every request*/
-				"checkInterval": "60", /*When development is set to false, use a separate thread to check modifications*/
-				"urlPattern": "*.jsp"
 			}
 		}
 	}
