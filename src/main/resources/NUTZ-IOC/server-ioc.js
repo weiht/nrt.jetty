@@ -4,12 +4,8 @@ var ioc = {
 		"fields": {
 			"bindAddress": "0.0.0.0",
 			"bindPort": 1920,
-			"filters": [{
-				"refer": "nutzFilter"
-			}],
-			"servlets": [{
-				"refer": "staticServlet"
-			}]
+			"filterList": {"refer": "filterList"},
+			"servletList": {"refer": "servletList"}
 		}
 	},
 	"nutzFilter": {

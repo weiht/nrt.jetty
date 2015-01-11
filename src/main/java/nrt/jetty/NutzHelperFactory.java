@@ -2,8 +2,28 @@ package nrt.jetty;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 
 public class NutzHelperFactory {
+	public static Object aliasFor(Object bean) {
+		return bean;
+	}
+	
+	public static <T> List<T> insertToList(List<T> lst, int ix, T bean) {
+		if (lst != null) {
+			lst.add(ix, bean);
+		}
+		return lst;
+	}
+	
+	public static Map<String, Object> addToMap(Map<String, Object> map, String key, Object value) {
+		if (map != null) {
+			map.put(key, value);
+		}
+		return map;
+	}
+	
 	public static Object methodCall(Object bean, String method, Object[] args)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		for (Method m: bean.getClass().getMethods()) {

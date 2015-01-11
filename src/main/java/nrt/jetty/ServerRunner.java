@@ -2,6 +2,7 @@ package nrt.jetty;
 
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.servlet.DispatcherType;
 
@@ -115,6 +116,22 @@ public class ServerRunner implements Runnable {
 
 	public void setServlets(ServletHolder[] servlets) {
 		this.servlets = servlets;
+	}
+	
+	public void setFilterList(List<FilterHolder> filterList) {
+		if (filterList == null || filterList.isEmpty()) {
+			this.filters = null;
+		} else {
+			this.filters = filterList.toArray(new FilterHolder[0]);
+		}
+	}
+	
+	public void setServletList(List<ServletHolder> servletList) {
+		if (servletList == null || servletList.isEmpty()) {
+			this.servlets = null;
+		} else {
+			this.servlets = servletList.toArray(new ServletHolder[0]);
+		}
 	}
 
 	public Runnable getStopper() {
