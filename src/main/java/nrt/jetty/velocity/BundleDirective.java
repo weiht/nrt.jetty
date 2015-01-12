@@ -84,18 +84,27 @@ extends Directive {
 
 	private void loadMixedBundles(InternalContextAdapter ctx,
 			String bundleName, Locale lc, File[] repos) {
-		ClassLoader cloader = ensureLoader(repos);
+		ClassLoader cloader = ensureLoader(ctx, repos);
 		ResourceBundle bundle = ResourceBundle.getBundle(bundleName, lc, cloader);
 		ctx.put(BUNDLE_KEY, bundle);
 	}
-
-	private ClassLoader ensureLoader(File[] repos) {
+	
+	private ClassLoader ensureLoader(InternalContextAdapter ctx, File[] repos) {
+		if (isDevMode(ctx)) return createLoader(repos);
 		if (bundleClassLoader == null) {
-			// Only one class loader will be retained.
-			URL[] urls = reposToUrls(repos);
-			bundleClassLoader = new URLClassLoader(urls, getClass().getClassLoader());
+			bundleClassLoader = createLoader(repos);
 		}
 		return bundleClassLoader;
+	}
+
+	private boolean isDevMode(InternalContextAdapter ctx) {
+		return ctx.get(VelocityView.KEY_DEV_MODE) != null;
+	}
+
+	private ClassLoader createLoader(File[] repos) {
+		// Only one class loader will be retained.
+		URL[] urls = reposToUrls(repos);
+		return new URLClassLoader(urls, getClass().getClassLoader());
 	}
 
 	private URL[] reposToUrls(File[] repos) {

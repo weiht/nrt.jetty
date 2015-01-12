@@ -41,6 +41,7 @@ implements View {
 	public static final String FILE_LOADER_PATH_KEY = ".resource.loader.path";
 	public static final String FILE_LOADER_NAME = "org.apache.velocity.runtime.resource.loader.FileResourceLoader";
 	public static final String SYS_PROP_VELOCITY_TEMPLATE_PATHS = "nrt.velocity.tplpath";
+	public static final String SYS_PROP_DEV_MODE = "devMode";
 	public static final String KEY_IOC = "ioc";
 	public static final String KEY_PATH = "path";
 	public static final String KEY_CONTEXT_PATH = "contextPath";
@@ -49,6 +50,7 @@ implements View {
 	public static final String KEY_RESPONSE = "response";
 	public static final String KEY_RESULT = "obj";
 	public static final String KEY_REPO_DIRS = "repoDirs";
+	public static final String KEY_DEV_MODE = "__dev_mode__";
 
 	private static final String[] MERGIBLE_CONFIG_KEYS = {
 		"userdirective", RES_LOADER_KEY
@@ -92,6 +94,9 @@ implements View {
 	private void initContext() {
 		rootContext = new VelocityContext();
 		rootContext.put(KEY_IOC, ioc);
+		if (System.getProperty(SYS_PROP_DEV_MODE) != null) {
+			rootContext.put(KEY_DEV_MODE, true);
+		}
 	}
 
 	private void loadConfig() {
