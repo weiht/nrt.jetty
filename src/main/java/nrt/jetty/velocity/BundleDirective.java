@@ -30,6 +30,7 @@ extends Directive {
 	
 	public static final String BUNDLE_KEY = "bundle";
 	private static ClassLoader bundleClassLoader;
+	private VelocityView viewConfig;
 
 	@Override
 	public String getName() {
@@ -49,6 +50,7 @@ extends Directive {
 	public boolean render(InternalContextAdapter ctx, Writer w, Node n)
 			throws IOException, ResourceNotFoundException, ParseErrorException,
 			MethodInvocationException {
+		this.viewConfig = (VelocityView) ctx.get(VelocityView.KEY_VIEW_CONFIG);
 		String bundleName = getBundleName(ctx, n);
 		if (isEmpty(bundleName)) {
 			logger.trace("No bundle name specified.");
@@ -78,7 +80,7 @@ extends Directive {
 
 	private void loadClasspathBundles(InternalContextAdapter ctx,
 			String bundleName, Locale lc) {
-		ResourceBundle bundle = ResourceBundle.getBundle(bundleName, lc);
+		ResourceBundle bundle = ResourceBundle.getBundle(viewConfig.getResourceLocation() + "." + bundleName, lc);
 		ctx.put(BUNDLE_KEY, bundle);
 	}
 

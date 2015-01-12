@@ -7,11 +7,7 @@
 		</layout>
 	</appender>
 
-	<logger name="nrt.jetty.web" level="trace" />
-	<logger name="org.eclipse.jetty" level="info" />
-	<logger name="org.nutz.mvc" level="debug" />
-	<logger name="org.eclipse.jetty.servlet" level="debug" />
-	<logger name="org.eclipse.jetty.handler" level="debug" />
+	<logger name="nrt" level="trace" />
 
 	<root level="warn">
 		<appender-ref ref="STDOUT" />
