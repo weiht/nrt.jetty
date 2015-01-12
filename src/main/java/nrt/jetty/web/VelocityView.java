@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +48,7 @@ implements View {
 	public static final String KEY_REQUEST = "request";
 	public static final String KEY_RESPONSE = "response";
 	public static final String KEY_RESULT = "obj";
+	public static final String KEY_REPO_DIRS = "repoDirs";
 
 	private static final String[] MERGIBLE_CONFIG_KEYS = {
 		"userdirective", RES_LOADER_KEY
@@ -57,6 +60,7 @@ implements View {
 	private Properties config;
 	private VelocityEngine engine;
 	private Context rootContext;
+	private File[] repoDirs;
 	private Ioc2 ioc;
 	
 	private String path;
@@ -109,21 +113,26 @@ implements View {
 
 	private void initFileResourceLoader() {
 		String paths = System.getProperty(SYS_PROP_VELOCITY_TEMPLATE_PATHS);
+		List<File> repos = new ArrayList<File>();
 		if (paths == null) return;
 		StringBuilder buff = new StringBuilder();
 		for (String p: paths.split(File.pathSeparator)) {
 			p = p.trim();
 			if (!p.isEmpty()) {
-				if (buff.length() > 0) {
-					buff.append(CONFIG_VALUE_SEPARATOR);
+				File f = new File(p, resourceLocation);
+				if (f.exists() && f.isDirectory()) {
+					if (buff.length() > 0) {
+						buff.append(CONFIG_VALUE_SEPARATOR);
+					}
+					buff.append(f.getAbsolutePath());
+					repos.add(f);
 				}
-				buff.append(p);
 			}
 		}
 		config.put(FILE_LOADER + FILE_LOADER_PATH_KEY, buff.toString());
-		config.put(INCLUDE_HANDLER_KEY, INCLUDE_HANDLER_VALUE);
 		config.put(FILE_LOADER + LOADER_CLASS_KEY, FILE_LOADER_NAME);
 		config.put(RES_LOADER_KEY, FILE_LOADER);
+		repoDirs = repos.toArray(new File[0]);
 	}
 
 	private void doLoadConfig(NutResource res) throws IOException {
@@ -169,20 +178,11 @@ implements View {
 		VelocityEngine ve = getEngine();
 		Context ctx = getContext(req, resp, obj);
 		Writer w = getWriter(resp);
-		String fn = evaluateFileName();
 		try {
-			ve.mergeTemplate(fn, parent.config.getProperty(ENCODING_KEY, DEFAULT_ENCODING), ctx, w);
+			ve.mergeTemplate(path, parent.config.getProperty(ENCODING_KEY, DEFAULT_ENCODING), ctx, w);
 		} finally {
 			closeWriter(w);
 		}
-	}
-	
-	private String evaluateFileName() {
-		String result = parent.resourceLocation;
-		if (result == null || result.isEmpty()) result = "/";
-		if (!result.endsWith("/")) result += "/";
-		result += path;
-		return result;
 	}
 
 	private void closeReader(Reader r) {
@@ -225,6 +225,7 @@ implements View {
 		ctx.put(KEY_RESULT, obj);
 		ctx.put(KEY_CONTEXT_PATH, req.getContextPath());
 		ctx.put(KEY_REQUEST_URI, Mvcs.getRequestPath(req));
+		ctx.put(KEY_REPO_DIRS, parent.repoDirs);
 		return ctx;
 	}
 
