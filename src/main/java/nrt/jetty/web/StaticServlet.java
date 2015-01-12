@@ -100,7 +100,7 @@ extends HttpServlet {
 	}
 
 	private InputStream classpathResourceAsStream(String path) {
-		return getClass().getClassLoader().getResourceAsStream(path);
+		return getClass().getClassLoader().getResourceAsStream(resourceLocation + path);
 	}
 
 	private void writeToResp(InputStream ins, HttpServletResponse resp) throws IOException {
