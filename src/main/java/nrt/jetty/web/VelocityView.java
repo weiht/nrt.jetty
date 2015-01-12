@@ -51,6 +51,7 @@ implements View {
 	public static final String KEY_RESULT = "obj";
 	public static final String KEY_REPO_DIRS = "repoDirs";
 	public static final String KEY_DEV_MODE = "__dev_mode__";
+	public static final String KEY_VIEW_CONFIG = "viewConfig";
 
 	private static final String[] MERGIBLE_CONFIG_KEYS = {
 		"userdirective", RES_LOADER_KEY
@@ -64,6 +65,7 @@ implements View {
 	private Context rootContext;
 	private File[] repoDirs;
 	private Ioc2 ioc;
+	private boolean devMode = false;
 	
 	private String path;
 	
@@ -96,7 +98,10 @@ implements View {
 		rootContext.put(KEY_IOC, ioc);
 		if (System.getProperty(SYS_PROP_DEV_MODE) != null) {
 			rootContext.put(KEY_DEV_MODE, true);
+			devMode = true;
 		}
+		rootContext.put(KEY_VIEW_CONFIG, this);
+		rootContext.put(KEY_REPO_DIRS, repoDirs);
 	}
 
 	private void loadConfig() {
@@ -230,7 +235,6 @@ implements View {
 		ctx.put(KEY_RESULT, obj);
 		ctx.put(KEY_CONTEXT_PATH, req.getContextPath());
 		ctx.put(KEY_REQUEST_URI, Mvcs.getRequestPath(req));
-		ctx.put(KEY_REPO_DIRS, parent.repoDirs);
 		return ctx;
 	}
 
@@ -255,5 +259,13 @@ implements View {
 
 	public void setResourceLocation(String resourceLocation) {
 		this.resourceLocation = resourceLocation;
+	}
+
+	public boolean isDevMode() {
+		return devMode;
+	}
+
+	public String getResourceLocation() {
+		return resourceLocation;
 	}
 }
