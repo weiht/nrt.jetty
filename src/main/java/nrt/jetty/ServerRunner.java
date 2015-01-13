@@ -11,6 +11,7 @@ import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ListenerHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -29,6 +30,7 @@ public class ServerRunner implements Runnable {
 	private SessionManager sessionManager;
 	private FilterHolder[] filters;
 	private ServletHolder[] servlets;
+	private ListenerHolder[] listeners;
 
 	private Runnable stopper = new Runnable() {
 		public void run() {
@@ -76,7 +78,8 @@ public class ServerRunner implements Runnable {
 		}
 		handlers.addHandler(sessionHandler);
 		ServletContextHandler contextHandler = new ServletContextHandler();
-		addHolders(contextHandler);contextHandler.setClassLoader(getClass().getClassLoader());
+		addHolders(contextHandler);
+		contextHandler.setClassLoader(getClass().getClassLoader());
 		handlers.addHandler(contextHandler);
 		svr.setHandler(handlers);
 		svr.start();
@@ -113,6 +116,11 @@ public class ServerRunner implements Runnable {
 				}
 			}
 		}
+		if (listeners != null && listeners.length > 0) {
+			for (ListenerHolder l: listeners) {
+				handler.addEventListener(l.getListener());
+			}
+		}
 	}
 
 	public void setBindAddress(String bindAddress) {
@@ -130,6 +138,10 @@ public class ServerRunner implements Runnable {
 	public void setServlets(ServletHolder[] servlets) {
 		this.servlets = servlets;
 	}
+
+	public void setListeners(ListenerHolder[] listeners) {
+		this.listeners = listeners;
+	}
 	
 	public void setFilterList(List<FilterHolder> filterList) {
 		if (filterList == null || filterList.isEmpty()) {
@@ -144,6 +156,14 @@ public class ServerRunner implements Runnable {
 			this.servlets = null;
 		} else {
 			this.servlets = servletList.toArray(new ServletHolder[0]);
+		}
+	}
+	
+	public void setListenerList(List<ListenerHolder> listenerList) {
+		if (listenerList == null || listenerList.isEmpty()) {
+			this.listeners = null;
+		} else {
+			this.listeners = listenerList.toArray(new ListenerHolder[0]);
 		}
 	}
 
