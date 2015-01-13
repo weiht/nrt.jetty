@@ -7,6 +7,9 @@ import java.util.List;
 import javax.servlet.DispatcherType;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.SessionManager;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -23,6 +26,7 @@ public class ServerRunner implements Runnable {
 	private String bindAddress = DEFAULT_BIND_ADDRESS;
 	private short bindPort = DEFAULT_BIND_PORT;
 	private Server server;
+	private SessionManager sessionManager;
 	private FilterHolder[] filters;
 	private ServletHolder[] servlets;
 
@@ -63,9 +67,18 @@ public class ServerRunner implements Runnable {
 	private void createServer() throws Exception {
 		InetSocketAddress addr = new InetSocketAddress(bindAddress, bindPort);
 		Server svr = new Server(addr);
-		ServletContextHandler handler = new ServletContextHandler();
-		addHolders(handler);handler.setClassLoader(getClass().getClassLoader());
-		svr.setHandler(handler);
+		HandlerCollection handlers = new HandlerCollection();
+		SessionHandler sessionHandler;
+		if (sessionManager == null) {
+			 sessionHandler = new SessionHandler();
+		} else {
+			sessionHandler = new SessionHandler(sessionManager);
+		}
+		handlers.addHandler(sessionHandler);
+		ServletContextHandler contextHandler = new ServletContextHandler();
+		addHolders(contextHandler);contextHandler.setClassLoader(getClass().getClassLoader());
+		handlers.addHandler(contextHandler);
+		svr.setHandler(handlers);
 		svr.start();
 		server = svr;
 	}
@@ -136,5 +149,9 @@ public class ServerRunner implements Runnable {
 
 	public Runnable getStopper() {
 		return stopper;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 }
