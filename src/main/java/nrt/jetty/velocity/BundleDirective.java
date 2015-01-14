@@ -39,7 +39,7 @@ extends Directive {
 
 	@Override
 	public int getType() {
-		return LINE;
+		return BLOCK;
 	}
 	
 	private boolean isEmpty(String str) {
@@ -61,34 +61,44 @@ extends Directive {
 		File[] repos = getRepos(ctx);
 		logger.trace("Repos for resources: {}", (Object)repos);
 		try {
-			loadBundle(ctx, bundleName, lc, repos);
-			return true;
+			InternalContextAdapter newCtx = loadBundle(ctx, bundleName, lc, repos);
+			logger.trace("Wrapping context: {}", newCtx);
+			Node block = n.jjtGetChild(n.jjtGetNumChildren() - 1);
+			logger.trace("Content block: {}", block);
+			return block.render(newCtx, w);
 		} catch (MissingResourceException e) {
 			logger.warn("", e);
 			return false;
 		}
 	}
 
-	private void loadBundle(InternalContextAdapter ctx, String bundleName,
+	private InternalContextAdapter loadBundle(InternalContextAdapter ctx, String bundleName,
 			Locale lc, File[] repos) {
 		if (repos == null || repos.length < 1) {
-			loadClasspathBundles(ctx, bundleName, lc);
+			return loadClasspathBundles(ctx, bundleName, lc);
 		} else {
-			loadMixedBundles(ctx, bundleName, lc, repos);
+			return loadMixedBundles(ctx, bundleName, lc, repos);
 		}
 	}
 
-	private void loadClasspathBundles(InternalContextAdapter ctx,
-			String bundleName, Locale lc) {
-		ResourceBundle bundle = ResourceBundle.getBundle(viewConfig.getResourceLocation() + "." + bundleName, lc);
-		ctx.put(BUNDLE_KEY, bundle);
+	private InternalContextAdapter wrapBundle(InternalContextAdapter ctx,
+			ResourceBundle bundle) {
+		InternalContextAdapter newCtx = new InternalContextAdapterWrapper(ctx);
+		newCtx.localPut(BUNDLE_KEY, bundle);
+		return newCtx;
 	}
 
-	private void loadMixedBundles(InternalContextAdapter ctx,
+	private InternalContextAdapter loadClasspathBundles(InternalContextAdapter ctx,
+			String bundleName, Locale lc) {
+		ResourceBundle bundle = ResourceBundle.getBundle(viewConfig.getResourceLocation() + "." + bundleName, lc);
+		return wrapBundle(ctx, bundle);
+	}
+
+	private InternalContextAdapter loadMixedBundles(InternalContextAdapter ctx,
 			String bundleName, Locale lc, File[] repos) {
 		ClassLoader cloader = ensureLoader(ctx, repos);
 		ResourceBundle bundle = ResourceBundle.getBundle(bundleName, lc, cloader);
-		ctx.put(BUNDLE_KEY, bundle);
+		return wrapBundle(ctx, bundle);
 	}
 	
 	private ClassLoader ensureLoader(InternalContextAdapter ctx, File[] repos) {
@@ -133,7 +143,7 @@ extends Directive {
 
 	private String getBundleName(InternalContextAdapter ctx, Node n) {
 		//TODO Retrieve bundle to current template.
-		if (n.jjtGetNumChildren() < 1) {
+		if (n.jjtGetNumChildren() < 2) {
 			// 获取默认资源
 			String bundleName = pathToBundleName((String) ctx.get(VelocityView.KEY_PATH));
 			logger.trace("No bundle name specified in directive. Using full path: {}", bundleName);

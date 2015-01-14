@@ -2,6 +2,7 @@ package nrt.jetty.velocity;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.apache.velocity.context.InternalContextAdapter;
@@ -37,15 +38,9 @@ extends Directive {
 			logger.trace("No key for resource text specified.");
 			return false;
 		}
-		ResourceBundle bundle = getBundle(ctx);
-		if (bundle == null) {
-			logger.trace("No resource bundle found.");
-			w.write(key);
-			return false;
-		}
 		String str;
 		try {
-			str = bundle.getString(key);
+			str = getMessage(ctx, key);
 		} catch (Exception e) {
 			w.write(key);
 			return false;
@@ -63,13 +58,38 @@ extends Directive {
 		w.write(str);
 		return true;
 	}
+	
+	private String getMessage(InternalContextAdapter ctx, String key) {
+		ResourceBundle bundle = null;
+		Object ob;
+		InternalContextAdapter itctx = ctx, nctx = null;
+		String str = null;
+		logger.trace("Beginning bundle iteration for {}...", key);
+		while (itctx != nctx) {
+			ob = itctx.get(BundleDirective.BUNDLE_KEY);
+			logger.trace("Bundle in\n{}:\n    {}", itctx, ob);
+			if (ob != null && ResourceBundle.class.isAssignableFrom(ob.getClass())) {
+				bundle = (ResourceBundle) ob;
+				try {
+					str = bundle.getString(key);
+				} catch (MissingResourceException e) {
+					str = null;
+				}
+				logger.trace("{} in bundle: {}", key, str);
+			}
+			if (isEmpty(str)) {
+				logger.trace("Message {} not found in context. Searching parent...");
+				nctx = itctx;
+				itctx = nctx.getBaseContext();
+			} else {
+				return str;
+			}
+		}
+		return str;
+	}
 
 	private boolean isEmpty(String str) {
 		return str == null || (str = str.trim()).isEmpty();
-	}
-
-	private ResourceBundle getBundle(InternalContextAdapter ctx) {
-		return (ResourceBundle) ctx.get(BundleDirective.BUNDLE_KEY);
 	}
 
 	private String getKey(InternalContextAdapter ctx, Node n) {
