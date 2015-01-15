@@ -19,6 +19,16 @@ var ioc = {
 			}
 		}
 	},
+	"defaultFilter": {
+		"type": "org.eclipse.jetty.servlet.FilterHolder",
+		"fields": {
+			"name": "defaultFilter",
+			"filter": {"type": "nrt.jetty.web.DefaultFilter"},
+			"initParameters": {
+				"urlPattern": "/*"
+			}
+		}
+	},
 	"staticServlet": {
 		"type": "org.eclipse.jetty.servlet.ServletHolder",
 		"fields": {
