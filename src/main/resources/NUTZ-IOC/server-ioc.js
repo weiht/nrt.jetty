@@ -14,7 +14,7 @@ var ioc = {
 			"name": "nutz",
 			"filter": {"type": "org.nutz.mvc.NutFilter"},
 			"initParameters": {
-				"urlPattern": "*.html",
+				"urlPattern": "*.shtml",
 				"modules": "nrt.jetty.web.MainModule"
 			}
 		}
@@ -26,6 +26,16 @@ var ioc = {
 			"filter": {"type": "nrt.jetty.web.DefaultFilter"},
 			"initParameters": {
 				"urlPattern": "/*"
+			}
+		}
+	},
+	"groovyServlet": {
+		"type": "org.eclipse.jetty.servlet.ServletHolder",
+		"fields": {
+			"name": "staticServlet",
+			"servlet": {"type": "nrt.jetty.web.GroovyVelocityServlet"},
+			"initParameters": {
+				"urlPattern": "*.html"
 			}
 		}
 	},

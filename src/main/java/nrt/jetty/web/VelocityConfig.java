@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.velocity.VelocityContext;
@@ -98,8 +99,8 @@ public class VelocityConfig {
 
 	private void initFileResourceLoader() {
 		String paths = System.getProperty(SYS_PROP_VELOCITY_TEMPLATE_PATHS);
-		List<File> repos = new ArrayList<File>();
 		if (paths == null) return;
+		List<File> repos = new ArrayList<File>();
 		StringBuilder buff = new StringBuilder();
 		for (String p: paths.split(File.pathSeparator)) {
 			p = p.trim();
@@ -161,6 +162,11 @@ public class VelocityConfig {
 	public Context newContext() {
 		ensureEngine();
 		return new VelocityContext(rootContext);
+	}
+
+	public Context newContext(Map<String, Object> result) {
+		ensureEngine();
+		return new VelocityContext(result, rootContext);
 	}
 	
 	public VelocityEngine getEngine() {
