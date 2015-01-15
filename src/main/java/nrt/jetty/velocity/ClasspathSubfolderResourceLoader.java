@@ -2,7 +2,7 @@ package nrt.jetty.velocity;
 
 import java.io.InputStream;
 
-import nrt.jetty.web.VelocityView;
+import nrt.jetty.web.VelocityConfig;
 
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
@@ -13,6 +13,6 @@ extends ClasspathResourceLoader {
 	public InputStream getResourceStream(String name)
 			throws ResourceNotFoundException {
 		//TODO Make it configurable.
-		return super.getResourceStream(VelocityView.DEFAULT_RESOURCE_LOCATION + name);
+		return super.getResourceStream(VelocityConfig.DEFAULT_RESOURCE_LOCATION + name);
 	}
 }

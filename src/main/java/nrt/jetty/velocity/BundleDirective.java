@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
-import nrt.jetty.web.VelocityView;
+import nrt.jetty.web.VelocityConfig;
 
 import org.apache.velocity.context.InternalContextAdapter;
 import org.apache.velocity.exception.MethodInvocationException;
@@ -30,7 +30,7 @@ extends Directive {
 	
 	public static final String BUNDLE_KEY = "bundle";
 	private static ClassLoader bundleClassLoader;
-	private VelocityView viewConfig;
+	private VelocityConfig viewConfig;
 
 	@Override
 	public String getName() {
@@ -50,7 +50,7 @@ extends Directive {
 	public boolean render(InternalContextAdapter ctx, Writer w, Node n)
 			throws IOException, ResourceNotFoundException, ParseErrorException,
 			MethodInvocationException {
-		this.viewConfig = (VelocityView) ctx.get(VelocityView.KEY_VIEW_CONFIG);
+		this.viewConfig = (VelocityConfig) ctx.get(VelocityConfig.KEY_VIEW_CONFIG);
 		String bundleName = getBundleName(ctx, n);
 		if (isEmpty(bundleName)) {
 			logger.trace("No bundle name specified.");
@@ -110,7 +110,7 @@ extends Directive {
 	}
 
 	private boolean isDevMode(InternalContextAdapter ctx) {
-		return ctx.get(VelocityView.KEY_DEV_MODE) != null;
+		return ctx.get(VelocityConfig.KEY_DEV_MODE) != null;
 	}
 
 	private ClassLoader createLoader(File[] repos) {
@@ -132,20 +132,20 @@ extends Directive {
 	}
 
 	private Locale getLocaleName(InternalContextAdapter ctx) {
-		HttpServletRequest request = (HttpServletRequest) ctx.get(VelocityView.KEY_REQUEST);
+		HttpServletRequest request = (HttpServletRequest) ctx.get(VelocityConfig.KEY_REQUEST);
 		if (request == null) return Locale.getDefault();
 		return request.getLocale();
 	}
 
 	private File[] getRepos(InternalContextAdapter ctx) {
-		return (File[]) ctx.get(VelocityView.KEY_REPO_DIRS);
+		return (File[]) ctx.get(VelocityConfig.KEY_REPO_DIRS);
 	}
 
 	private String getBundleName(InternalContextAdapter ctx, Node n) {
 		//TODO Retrieve bundle to current template.
 		if (n.jjtGetNumChildren() < 2) {
 			// 获取默认资源
-			String bundleName = pathToBundleName((String) ctx.get(VelocityView.KEY_PATH));
+			String bundleName = pathToBundleName((String) ctx.get(VelocityConfig.KEY_PATH));
 			logger.trace("No bundle name specified in directive. Using full path: {}", bundleName);
 			return bundleName;
 		} else {
