@@ -1,6 +1,7 @@
 package nrt.jetty.web;
 
 import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import groovy.util.GroovyScriptEngine;
 
 import java.io.File;
@@ -85,6 +86,12 @@ public class GroovyConfig {
 			engine = new GroovyScriptEngine(groovyClasspaths, getClass().getClassLoader());
 		}
 	}
+	
+	public void executeSnippet(String snippet, Binding binding) throws IOException {
+		ensureEngine();
+		GroovyShell shell = new GroovyShell(engine.getGroovyClassLoader(), binding);
+		shell.evaluate(snippet);
+	}
 
 	public GroovyScriptEngine getEngine() {
 		try {
@@ -110,7 +117,7 @@ public class GroovyConfig {
 		String sval = param.toString();
 		return isYes(sval);
 	}
-
+	
 	private static boolean inStrArr(String[] sarr, String sval) {
 		String s = sval.toLowerCase();
 		for (String y: sarr) {
