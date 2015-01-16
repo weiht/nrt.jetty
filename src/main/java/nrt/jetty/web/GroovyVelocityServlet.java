@@ -72,6 +72,7 @@ extends HttpServlet {
 		Context ctx = getContext(path, req, resp, result);
 		Writer w = getWriter(resp);
 		try {
+			ctx.put(GroovyConfig.KEY_GROOVY_CONFIG, groovyConfig);
 			ve.mergeTemplate(path, velocityConfig.getEncoding(), ctx, w);
 		} finally {
 			Streams.safeClose(w);

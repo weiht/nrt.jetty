@@ -39,6 +39,7 @@ public class GroovyConfig {
 	private Binding rootBinding = new Binding();
 	private GroovyScriptEngine engine;
 	private Ioc2 ioc;
+	private boolean devMode;
 	
 	private void loadGroovyClasspaths() {
 		List<String> classpaths = new ArrayList<String>();
@@ -72,6 +73,7 @@ public class GroovyConfig {
 		rootBinding.setVariable(VelocityConfig.KEY_IOC, ioc);
 		if (System.getProperty(VelocityConfig.SYS_PROP_DEV_MODE) != null) {
 			rootBinding.setVariable(VelocityConfig.KEY_DEV_MODE, true);
+			devMode = true;
 		}
 		rootBinding.setVariable(KEY_GROOVY_CONFIG, this);
 	}
@@ -164,5 +166,9 @@ public class GroovyConfig {
 
 	public String getResourceLocation() {
 		return resourceLocation;
+	}
+
+	public boolean isDevMode() {
+		return devMode;
 	}
 }
