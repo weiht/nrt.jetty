@@ -12,7 +12,7 @@ implements IocProvider {
 	private static final Ioc2 rootIoc = new NutIoc(new JsonLoader("NUTZ-IOC/"));
 
 	public Ioc create(NutConfig config, String[] args) {
-		return new NutIoc(new JsonLoader(args), rootIoc.getIocContext(), "app");
+		return rootIoc;
 	}
 	
 	public static Ioc2 nutzIoc() {
