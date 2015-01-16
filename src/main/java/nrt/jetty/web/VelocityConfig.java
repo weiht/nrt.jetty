@@ -54,6 +54,7 @@ public class VelocityConfig {
 	private String configLocation = DEFAULT_CONFIG_LOCATION, configFile = DEFAULT_CONFIG_FILE;
 	private String resourceLocation = DEFAULT_RESOURCE_LOCATION;
 	private Properties config;
+	private String encoding = DEFAULT_ENCODING;
 	private Context rootContext;
 	private File[] repoDirs;
 	private Ioc2 ioc;
@@ -90,6 +91,7 @@ public class VelocityConfig {
 				logger.warn("Error loading velocity config file.", e);
 			}
 		}
+		encoding = config.getProperty(ENCODING_KEY);
 	}
 
 	private void initDefaultConfig() {
@@ -175,7 +177,8 @@ public class VelocityConfig {
 	}
 	
 	public String getEncoding() {
-		return config.getProperty(ENCODING_KEY, DEFAULT_ENCODING);
+		ensureEngine();
+		return encoding;
 	}
 	
 	public void setConfigFile(String configFile) {

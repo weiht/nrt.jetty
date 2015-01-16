@@ -19,10 +19,14 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.nutz.lang.Streams;
 import org.nutz.mvc.Mvcs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroovyVelocityServlet
 extends HttpServlet {
 	private static final long serialVersionUID = 4378889324537046202L;
+	
+	private static final Logger logger = LoggerFactory.getLogger(GroovyVelocityServlet.class);
 	
 	private VelocityConfig velocityConfig;
 	private GroovyConfig groovyConfig;
@@ -35,6 +39,8 @@ extends HttpServlet {
 			super.service(req, resp);
 			return;
 		}
+		req.setCharacterEncoding(velocityConfig.getEncoding());
+		resp.setCharacterEncoding(velocityConfig.getEncoding());
 		render(req, resp, path);
 	}
 
@@ -49,8 +55,8 @@ extends HttpServlet {
 			throw new ServletException(e);
 		}
 		if (!groovyConfig.preRender(result, getWriter(resp))) {
-			Object forwarded = result.get(GroovyConfig.KEY_FORWARD_TO);
-			if (forwarded != null) {
+			Object forwarded;
+			if (result != null && (forwarded = result.get(GroovyConfig.KEY_FORWARD_TO)) != null) {
 				String fwd = forwarded.toString();
 				render(req, resp, fwd);
 			} else {
@@ -94,9 +100,10 @@ extends HttpServlet {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> runScript(String path, HttpServletRequest req,
 			HttpServletResponse resp) throws ResourceException, ScriptException {
+		logger.trace("Running script {}...", path);
 		Binding binding = getBinding(path, req, resp);
 		GroovyScriptEngine engine = groovyConfig.getEngine();
-		engine.run(path, binding);
+		engine.run(groovyConfig.getResourceLocation() + path, binding);
 		return binding.getVariables();
 	}
 

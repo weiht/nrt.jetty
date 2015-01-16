@@ -6,14 +6,20 @@ import groovy.util.GroovyScriptEngine;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.nutz.ioc.Ioc2;
 import org.nutz.json.Json;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroovyConfig {
+	private static final Logger logger = LoggerFactory.getLogger(GroovyConfig.class);
+	
 	public static final String SYS_PROP_GROOVY_SCRIPT_PATHS = "nrt.groovy.classpath";
 	public static final String KEY_GROOVY_CONFIG = "groovyConfig";
 	public static final Object KEY_FORWARD_TO = "forwardTo";
@@ -35,18 +41,30 @@ public class GroovyConfig {
 	private Ioc2 ioc;
 	
 	private void loadGroovyClasspaths() {
-		String paths = System.getProperty(SYS_PROP_GROOVY_SCRIPT_PATHS);
-		if (paths == null) return;
 		List<String> classpaths = new ArrayList<String>();
-		for (String p: paths.split(File.pathSeparator)) {
-			p = p.trim();
-			if (!p.isEmpty()) {
-				File f = new File(p, resourceLocation);
-				if (f.exists() && f.isDirectory()) {
-					classpaths.add(f.toString());
+		ClassLoader loader = getClass().getClassLoader();
+		if (loader instanceof URLClassLoader) {
+			@SuppressWarnings("resource")
+			URLClassLoader uloader = (URLClassLoader)loader;
+			for (URL u: uloader.getURLs()) {
+				logger.trace("Groovy classpath from jvm: {}", u);
+				classpaths.add(u.getPath());
+			}
+		}
+		String paths = System.getProperty(SYS_PROP_GROOVY_SCRIPT_PATHS);
+		if (paths != null) {
+			for (String p: paths.split(File.pathSeparator)) {
+				p = p.trim();
+				if (!p.isEmpty()) {
+					File f = new File(p);
+					if (f.exists() && f.isDirectory()) {
+						logger.trace("Groovy classpath: {}", f);
+						classpaths.add(f.toString());
+					}
 				}
 			}
 		}
+		logger.trace("GroovyRunner: classpaths: {}", classpaths);
 		groovyClasspaths = classpaths.toArray(groovyClasspaths);
 	}
 	
@@ -116,7 +134,9 @@ public class GroovyConfig {
 			return true;
 		o = result.get(KEY_JSON_RESULT);
 		if (o != null) {
+			logger.trace("Json result: {}", o);
 			Json.toJson(w, o);
+			return true;
 		}
 		return false;
 	}
@@ -140,5 +160,9 @@ public class GroovyConfig {
 
 	public void setIoc(Ioc2 ioc) {
 		this.ioc = ioc;
+	}
+
+	public String getResourceLocation() {
+		return resourceLocation;
 	}
 }
