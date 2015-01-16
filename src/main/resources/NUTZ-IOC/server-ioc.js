@@ -32,8 +32,14 @@ var ioc = {
 	"groovyServlet": {
 		"type": "org.eclipse.jetty.servlet.ServletHolder",
 		"fields": {
-			"name": "staticServlet",
-			"servlet": {"type": "nrt.jetty.web.GroovyVelocityServlet"},
+			"name": "groovyServlet",
+			"servlet": {
+				"type": "nrt.jetty.web.GroovyVelocityServlet",
+				"fields": {
+					"groovyConfig": {"refer": "groovyConfig"},
+					"velocityConfig": {"refer": "velocityConfig"}
+				}
+			},
 			"initParameters": {
 				"urlPattern": "*.html"
 			}
@@ -47,6 +53,18 @@ var ioc = {
 			"initParameters": {
 				"urlPattern": "/s/*"
 			}
+		}
+	},
+	"velocityConfig": {
+		"type": "nrt.jetty.web.VelocityConfig",
+		"fields": {
+			"ioc": {"refer": "$ioc"}
+		}
+	},
+	"groovyConfig": {
+		"type": "nrt.jetty.web.GroovyConfig",
+		"fields": {
+			"ioc": {"refer": "$ioc"}
 		}
 	}
 };

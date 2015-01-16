@@ -4,11 +4,5 @@ var ioc = {
 		"fields": {
 			"config": {"refer": "velocityConfig"}
 		}
-	},
-	"velocityConfig": {
-		"type": "nrt.jetty.web.VelocityConfig",
-		"fields": {
-			"ioc": {"refer": "$ioc"}
-		}
 	}
 };
