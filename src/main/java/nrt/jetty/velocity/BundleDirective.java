@@ -97,7 +97,7 @@ extends Directive {
 	private InternalContextAdapter loadMixedBundles(InternalContextAdapter ctx,
 			String bundleName, Locale lc, File[] repos) {
 		ClassLoader cloader = ensureLoader(ctx, repos);
-		ResourceBundle bundle = ResourceBundle.getBundle(bundleName, lc, cloader);
+		ResourceBundle bundle = ResourceBundle.getBundle(viewConfig.getResourceLocation() + "." + bundleName, lc, cloader);
 		return wrapBundle(ctx, bundle);
 	}
 	
@@ -122,8 +122,12 @@ extends Directive {
 	private URL[] reposToUrls(File[] repos) {
 		URL[] result = new URL[repos.length];
 		for (int i = 0; i < result.length; i ++) {
+			File r = repos[i];
+			if (r.getName().equals(viewConfig.getResourceLocation())) {
+				r = r.getParentFile();
+			}
 			try {
-				result[i] = repos[i].toURI().toURL();
+				result[i] = r.toURI().toURL();
 			} catch (MalformedURLException e) {
 				//Does nothing
 			}
