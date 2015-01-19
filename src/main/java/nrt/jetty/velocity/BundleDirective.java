@@ -61,7 +61,12 @@ extends Directive {
 		File[] repos = getRepos(ctx);
 		logger.trace("Repos for resources: {}", (Object)repos);
 		try {
-			InternalContextAdapter newCtx = loadBundle(ctx, bundleName, lc, repos);
+			InternalContextAdapter newCtx;
+			try {
+				newCtx = loadBundle(ctx, bundleName, lc, repos);
+			} catch (Exception ex) {
+				newCtx = ctx;
+			}
 			logger.trace("Wrapping context: {}", newCtx);
 			Node block = n.jjtGetChild(n.jjtGetNumChildren() - 1);
 			logger.trace("Content block: {}", block);
@@ -149,7 +154,7 @@ extends Directive {
 		//TODO Retrieve bundle to current template.
 		if (n.jjtGetNumChildren() < 2) {
 			// 获取默认资源
-			String bundleName = pathToBundleName((String) ctx.get(VelocityConfig.KEY_PATH));
+			String bundleName = pathToBundleName(ctx.getCurrentTemplateName());
 			logger.trace("No bundle name specified in directive. Using full path: {}", bundleName);
 			return bundleName;
 		} else {
