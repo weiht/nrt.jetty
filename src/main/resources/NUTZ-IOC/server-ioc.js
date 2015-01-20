@@ -19,6 +19,17 @@ var ioc = {
 			}
 		}
 	},
+	"rsFilter": {
+		"type": "org.eclipse.jetty.servlet.FilterHolder",
+		"fields": {
+			"name": "rs",
+			"filter": {"type": "org.nutz.mvc.NutFilter"},
+			"initParameters": {
+				"urlPattern": "/rs/*",
+				"modules": "nrt.jetty.rs.MainModule"
+			}
+		}
+	},
 	"defaultFilter": {
 		"type": "org.eclipse.jetty.servlet.FilterHolder",
 		"fields": {
