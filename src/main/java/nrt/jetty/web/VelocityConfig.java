@@ -2,6 +2,7 @@ package nrt.jetty.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,9 @@ import java.util.Properties;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.ToolManager;
+import org.apache.velocity.tools.config.FactoryConfiguration;
+import org.apache.velocity.tools.config.XmlFactoryConfiguration;
 import org.nutz.ioc.Ioc2;
 import org.nutz.lang.Streams;
 import org.nutz.resource.NutResource;
@@ -24,6 +28,7 @@ public class VelocityConfig {
 	public static final String DEFAULT_CONFIG_LOCATION = "NUTZ-MVC";
 	public static final String DEFAULT_RESOURCE_LOCATION = "NUTZ-RES";
 	public static final String DEFAULT_CONFIG_FILE = "velocity.properties";
+	public static final String DEFAULT_TOOLBOX_FILE = "velocity-toolbox.xml";
 	public static final String CONFIG_VALUE_SEPARATOR = ",";
 	public static final String RES_LOADER_KEY = "resource.loader";
 	public static final String ENCODING_KEY = "input.encoding";
@@ -51,7 +56,9 @@ public class VelocityConfig {
 		"userdirective", RES_LOADER_KEY
 	};
 
-	private String configLocation = DEFAULT_CONFIG_LOCATION, configFile = DEFAULT_CONFIG_FILE;
+	private String configLocation = DEFAULT_CONFIG_LOCATION,
+			configFile = DEFAULT_CONFIG_FILE,
+			toolboxConfigFile = DEFAULT_TOOLBOX_FILE;
 	private String resourceLocation = DEFAULT_RESOURCE_LOCATION;
 	private Properties config;
 	private String encoding = DEFAULT_ENCODING;
@@ -71,7 +78,18 @@ public class VelocityConfig {
 	}
 	
 	private void initContext() {
-		rootContext = new VelocityContext();
+		ToolManager manager = new ToolManager(true);
+		FactoryConfiguration conf = new FactoryConfiguration();
+		for (NutResource xmlres: Scans.me().scan(configLocation, toolboxConfigFile)) {
+			try {
+				XmlFactoryConfiguration c = readToolConfig(xmlres);
+				conf.addConfiguration(c);
+			} catch (IOException e) {
+				logger.warn("Error loading configuration resource: {}", xmlres.getName(), e);
+			}
+		}
+		manager.configure(conf);
+		rootContext = manager.createContext();
 		rootContext.put(KEY_IOC, ioc);
 		if (System.getProperty(SYS_PROP_DEV_MODE) != null) {
 			rootContext.put(KEY_DEV_MODE, true);
@@ -79,6 +97,18 @@ public class VelocityConfig {
 		}
 		rootContext.put(KEY_VIEW_CONFIG, this);
 		rootContext.put(KEY_REPO_DIRS, repoDirs);
+	}
+
+	private XmlFactoryConfiguration readToolConfig(NutResource xmlres)
+			throws IOException {
+		XmlFactoryConfiguration c = new XmlFactoryConfiguration();
+		InputStream ins = xmlres.getInputStream();
+		try {
+			c.read(ins);
+		} finally {
+			Streams.safeClose(ins);
+		};
+		return c;
 	}
 
 	private void loadConfig() {
