@@ -27,7 +27,7 @@ public class VelocityConfig {
 	
 	public static final String DEFAULT_CONFIG_LOCATION = "NUTZ-MVC";
 	public static final String DEFAULT_RESOURCE_LOCATION = "NUTZ-RES";
-	public static final String DEFAULT_CONFIG_FILE = "velocity.properties";
+	public static final String DEFAULT_CONFIG_FILE = ".*velocity.properties";
 	public static final String DEFAULT_TOOLBOX_FILE = "velocity-toolbox.xml";
 	public static final String CONFIG_VALUE_SEPARATOR = ",";
 	public static final String RES_LOADER_KEY = "resource.loader";
@@ -121,7 +121,7 @@ public class VelocityConfig {
 				logger.warn("Error loading velocity config file.", e);
 			}
 		}
-		encoding = config.getProperty(ENCODING_KEY);
+		encoding = config.getProperty(ENCODING_KEY, DEFAULT_ENCODING);
 	}
 
 	private void initDefaultConfig() {
@@ -208,6 +208,7 @@ public class VelocityConfig {
 	
 	public String getEncoding() {
 		ensureEngine();
+		logger.trace("Encoding: {}", encoding);
 		return encoding;
 	}
 	
