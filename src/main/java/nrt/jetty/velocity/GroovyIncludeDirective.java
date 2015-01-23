@@ -1,7 +1,6 @@
 package nrt.jetty.velocity;
 
 import groovy.lang.Binding;
-import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 
@@ -43,10 +42,9 @@ extends Parse {
 		String fn = parseScriptFile(context, node);
 		Binding binding = config.getBinding();
 		GroovyBindingsHelper.velocityInternalContextToBindings(context, binding);
-		GroovyScriptEngine engine = config.getEngine();
 		try {
 			logger.trace("Running groovy script: {}", fn);
-			engine.run(toGroovyFile(config, fn), binding);
+			config.runScript(toGroovyFile(config, fn), binding);
 			GroovyBindingsHelper.bindingsToVelocityInternalContext(binding, context);
 			return tryParse(context, writer, node);
 		} catch (ResourceException e) {

@@ -3,6 +3,8 @@ package nrt.jetty.web;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.util.GroovyScriptEngine;
+import groovy.util.ResourceException;
+import groovy.util.ScriptException;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +12,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,18 +44,10 @@ public class GroovyConfig {
 	private GroovyScriptEngine engine;
 	private Ioc2 ioc;
 	private boolean devMode;
+	private Map<String, String> resMappings = new HashMap<String, String>();
 	
 	private void loadGroovyClasspaths() {
 		List<String> classpaths = new ArrayList<String>();
-		ClassLoader loader = getClass().getClassLoader();
-		if (loader instanceof URLClassLoader) {
-			@SuppressWarnings("resource")
-			URLClassLoader uloader = (URLClassLoader)loader;
-			for (URL u: uloader.getURLs()) {
-				logger.trace("Groovy classpath from jvm: {}", u);
-				classpaths.add(u.getPath());
-			}
-		}
 		String paths = System.getProperty(SYS_PROP_GROOVY_SCRIPT_PATHS);
 		if (paths != null) {
 			for (String p: paths.split(File.pathSeparator)) {
@@ -64,6 +59,16 @@ public class GroovyConfig {
 						classpaths.add(f.toString());
 					}
 				}
+			}
+		}
+		ClassLoader loader = getClass().getClassLoader();
+		if (loader instanceof URLClassLoader) {
+			@SuppressWarnings("resource")
+			URLClassLoader uloader = (URLClassLoader)loader;
+			for (URL u: uloader.getURLs()) {
+				logger.trace("Groovy classpath from jvm: {}", u);
+				String f = u.getPath();
+				classpaths.add(f);
 			}
 		}
 		logger.trace("GroovyRunner: classpaths: {}", classpaths);
@@ -161,6 +166,50 @@ public class GroovyConfig {
 		} else {
 			return path.substring(0, ix + 1) + fwd;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> runScript(String path, Binding binding)
+			throws ResourceException, ScriptException {
+		logger.trace("Running script {}...", path);
+		GroovyScriptEngine engine = getEngine();
+		String fullPath = locateScript(path);
+		if (fullPath == null || fullPath.isEmpty()) {
+			return null;
+		}
+		logger.debug("Script file: {}", fullPath);
+		engine.run(fullPath, binding);
+		return binding.getVariables();
+	}
+
+	private String locateScript(String path) {
+		String p = getResourceLocation() + path;
+		if (!devMode) {
+			String fp = resMappings.get(p);
+			if (fp == null) {
+				fp = doLocateScript(path);
+			}
+			return fp;
+		} else {
+			return doLocateScript(path);
+		}
+	}
+
+	private String doLocateScript(String p) {
+		for (String cp: groovyClasspaths) {
+			File f = new File(cp);
+			if (f.isDirectory()) {
+				File fp = new File(new File(f, getResourceLocation()), p);
+				logger.trace("Examining file existance: {}", fp.toURI());
+				if (fp.exists()) {
+					String result = fp.toURI().toString();
+					logger.trace("File located: {}", result);
+					return result;
+				}
+			}
+		}
+		URL u = getClass().getClassLoader().getResource(getResourceLocation() + p);
+		return u == null ? null : u.toString();
 	}
 
 	public void setResourceLocation(String resourceLocation) {

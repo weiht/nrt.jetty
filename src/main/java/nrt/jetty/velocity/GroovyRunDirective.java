@@ -1,7 +1,6 @@
 package nrt.jetty.velocity;
 
 import groovy.lang.Binding;
-import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 
@@ -48,10 +47,9 @@ extends Directive {
 		String groovyFile = parseScriptFile(context, node);
 		Binding binding = config.getBinding();
 		GroovyBindingsHelper.velocityInternalContextToBindings(context, binding);
-		GroovyScriptEngine engine = config.getEngine();
 		try {
 			logger.trace("Running groovy script: {}", groovyFile);
-			engine.run(config.getResourceLocation() + groovyFile, binding);
+			config.runScript(config.getResourceLocation() + groovyFile, binding);
 			return true;
 		} catch (ResourceException e) {
 			if (config.isDevMode()) {

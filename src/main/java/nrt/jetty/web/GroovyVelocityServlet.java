@@ -1,7 +1,6 @@
 package nrt.jetty.web;
 
 import groovy.lang.Binding;
-import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 
@@ -50,6 +49,7 @@ extends HttpServlet {
 		try {
 			result = runScript(path + ".groovy", req, resp);
 		} catch (ResourceException e) {
+			logger.debug("", e);
 			result = null;
 		} catch (ScriptException e) {
 			throw new ServletException(e);
@@ -98,14 +98,10 @@ extends HttpServlet {
 		return ctx;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Map<String, Object> runScript(String path, HttpServletRequest req,
 			HttpServletResponse resp) throws ResourceException, ScriptException {
-		logger.trace("Running script {}...", path);
 		Binding binding = getBinding(path, req, resp);
-		GroovyScriptEngine engine = groovyConfig.getEngine();
-		engine.run(groovyConfig.getResourceLocation() + path, binding);
-		return binding.getVariables();
+		return groovyConfig.runScript(path, binding);
 	}
 
 	private Binding getBinding(String path, HttpServletRequest req,
