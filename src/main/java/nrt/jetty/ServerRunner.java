@@ -22,6 +22,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
  */
 public class ServerRunner implements Runnable {
 	private static final String DEFAULT_BIND_ADDRESS = "127.0.0.1";
+	private static final String DEFAULT_CONTEXT_PATH = "";
 	private static final short DEFAULT_BIND_PORT = 5432;
 	
 	private String bindAddress = DEFAULT_BIND_ADDRESS;
@@ -31,6 +32,7 @@ public class ServerRunner implements Runnable {
 	private FilterHolder[] filters;
 	private ServletHolder[] servlets;
 	private ListenerHolder[] listeners;
+	private String contextPath = DEFAULT_CONTEXT_PATH;
 
 	private Runnable stopper = new Runnable() {
 		public void run() {
@@ -78,6 +80,7 @@ public class ServerRunner implements Runnable {
 		}
 		handlers.addHandler(sessionHandler);
 		ServletContextHandler contextHandler = new ServletContextHandler();
+		contextHandler.setContextPath(contextPath);
 		addHolders(contextHandler);
 		contextHandler.setClassLoader(getClass().getClassLoader());
 		handlers.addHandler(contextHandler);
