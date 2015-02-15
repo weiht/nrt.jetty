@@ -107,10 +107,13 @@ public class GroovyConfig {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Binding getBinding() {
 		try {
 			ensureEngine();
-			return new Binding(rootBinding.getVariables());
+			Binding b = new Binding();
+			b.getVariables().putAll(rootBinding.getVariables());
+			return b;
 		} catch (IOException e) {
 			return null;
 		}
